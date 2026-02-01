@@ -1,3 +1,5 @@
+import { defineContentScript } from 'wxt/utils/define-content-script';
+
 export default defineContentScript({
   matches: ['https://www.facebook.com/*'],
   main() {
@@ -49,7 +51,11 @@ export default defineContentScript({
           video.playbackRate = speed;
           
           // Visual feedback
-          Array.from(container.children).forEach((c: any) => c.style.color = 'white');
+          Array.from(container.children).forEach((c) => {
+            if (c instanceof HTMLElement) {
+              c.style.color = 'white';
+            }
+          });
           btn.style.color = '#4ade80'; // Green-400
         };
 
