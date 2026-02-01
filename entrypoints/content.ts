@@ -18,8 +18,18 @@ export default defineContentScript({
 
       // Apply guaranteed speed
       video.playbackRate = currentSpeed;
-      // Enforce it periodically in case FB resets it? 
-      // For now, trust the initial set, but update if slider moves.
+
+      // Enforce speed aggressively against Facebook's auto-reset
+      const enforceSpeed = () => {
+        if (!currentSpeed) return;
+        if (Math.abs(video.playbackRate - currentSpeed) > 0.1) {
+          video.playbackRate = currentSpeed;
+        }
+      };
+
+      video.addEventListener('ratechange', enforceSpeed);
+      video.addEventListener('play', enforceSpeed);
+      video.addEventListener('loadedmetadata', enforceSpeed);
 
       const container = document.createElement('div');
       container.className = 'fb-speed-controller';
@@ -54,11 +64,11 @@ export default defineContentScript({
       // Stop propagation to prevent pausing/muting when interacting with slider
       const stopProp = (e: Event) => {
         e.stopPropagation();
-        // e.preventDefault(); // preventing default on mousedown might stop focus, but we need focus for slider?
-        // Actually, slider works with just click prevention usually, but FB listens to mousedown often.
+        e.stopImmediatePropagation();
       };
 
-      ['click', 'mousedown', 'mouseup', 'dblclick'].forEach(evt => {
+      // Block all possible interaction events to prevent FB from catching the click
+      ['click', 'mousedown', 'mouseup', 'dblclick', 'pointerdown', 'pointerup', 'touchstart', 'touchend'].forEach(evt => {
         container.addEventListener(evt, stopProp);
       });
 
