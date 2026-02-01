@@ -7,6 +7,10 @@ declare module "wxt/browser" {
     | "/"
     | "/content-scripts/content.js"
     | "/icon.png"
+    | "/icon128.png"
+    | "/icon16.png"
+    | "/icon32.png"
+    | "/icon48.png"
     | "/popup.html"
   type HtmlPublicPath = Extract<PublicPath, `${string}.html`>
   export interface WxtRuntime {
