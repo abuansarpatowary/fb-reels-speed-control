@@ -6,5 +6,12 @@ export default defineConfig({
     description: 'Control playback speed of Facebook Reels',
     permissions: ['activeTab', 'scripting'],
     host_permissions: ['https://www.facebook.com/*'],
+    icons: {
+      16: '/icon.png',
+      32: '/icon.png',
+      48: '/icon.png',
+      96: '/icon.png',
+      128: '/icon.png',
+    },
   },
 });
