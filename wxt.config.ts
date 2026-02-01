@@ -4,7 +4,7 @@ export default defineConfig({
   manifest: {
     name: 'FB Reels Speed',
     description: 'Control playback speed of Facebook Reels',
-    permissions: ['activeTab', 'scripting'],
+    permissions: ['activeTab', 'scripting', 'storage'],
     host_permissions: ['*://*.facebook.com/*'],
     icons: {
       16: '/icon.png',

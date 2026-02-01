@@ -38,6 +38,7 @@
     "entrypoints",
     "vite.config.ts",
     "wxt.config.ts",
-    "wxt-env.d.ts"
+    "wxt-env.d.ts",
+    ".wxt/types"
   ]
 }

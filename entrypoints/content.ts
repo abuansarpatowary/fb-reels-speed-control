@@ -1,11 +1,14 @@
 import { defineContentScript } from 'wxt/utils/define-content-script';
+import { storage } from 'wxt/utils/storage';
 import '../assets/content.css';
 
 export default defineContentScript({
   matches: ['*://*.facebook.com/*'],
 
-  main() {
+  async main() {
     console.log('FB Reels Speed Extension Loaded');
+
+    let currentSpeed = await storage.getItem<number>('local:speed') || 1.0;
 
     const OBSERVER_CONFIG = { childList: true, subtree: true };
 
@@ -13,13 +16,18 @@ export default defineContentScript({
       // Check if controller already exists for this video
       if (video.parentElement?.querySelector('.fb-speed-controller')) return;
 
+      // Apply guaranteed speed
+      video.playbackRate = currentSpeed;
+      // Enforce it periodically in case FB resets it? 
+      // For now, trust the initial set, but update if slider moves.
+
       const container = document.createElement('div');
       container.className = 'fb-speed-controller';
 
       // Icon/Value wrapper
       const icon = document.createElement('div');
       icon.className = 'fb-speed-icon';
-      icon.innerText = `${video.playbackRate}x`; // Initial value
+      icon.innerText = `${currentSpeed}x`;
 
       // Slider container
       const sliderContainer = document.createElement('div');
@@ -32,19 +40,26 @@ export default defineContentScript({
       slider.min = '0.5';
       slider.max = '4.0';
       slider.step = '0.25';
-      slider.value = video.playbackRate.toString();
+      slider.value = currentSpeed.toString();
 
       // Events
       slider.addEventListener('input', (e) => {
         const speed = parseFloat((e.target as HTMLInputElement).value);
+        currentSpeed = speed;
         video.playbackRate = speed;
         icon.innerText = `${speed}x`;
+        storage.setItem('local:speed', speed);
       });
 
       // Stop propagation to prevent pausing/muting when interacting with slider
-      container.addEventListener('click', (e) => {
+      const stopProp = (e: Event) => {
         e.stopPropagation();
-        e.preventDefault();
+        // e.preventDefault(); // preventing default on mousedown might stop focus, but we need focus for slider?
+        // Actually, slider works with just click prevention usually, but FB listens to mousedown often.
+      };
+
+      ['click', 'mousedown', 'mouseup', 'dblclick'].forEach(evt => {
+        container.addEventListener(evt, stopProp);
       });
 
       // Assemble UI
